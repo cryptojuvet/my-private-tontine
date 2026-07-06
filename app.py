@@ -55,7 +55,7 @@ with st.sidebar.expander("👤 1. Onboard New Friend", expanded=False):
         new_whatsapp = st.text_input("WhatsApp Number")
         new_country = st.selectbox("Resident Country", ["UK", "Germany", "USA", "Canada"])
         new_notes = st.text_area("Internal Context Notes")
-        submit_onboard = st.form_submit_with_button("Generate Profile")
+        submit_onboard = st.form_submit_button("Generate Profile")
         
         if submit_onboard and new_name and new_whatsapp:
             new_client = {
@@ -76,7 +76,7 @@ with st.sidebar.expander("💰 2. Initialize New Cycle Allocation", expanded=Fal
         pen_rate = st.number_input("Default Overdue Penalty Rate %", min_value=0, value=5)
         grace_d = st.number_input("Grace Days Allocated", min_value=0, value=3)
         corr_select = st.selectbox("Assigned Overseas Collector", st.session_state.correspondents['name'].tolist())
-        submit_loan = st.form_submit_with_button("Lock Foreign Base Debt")
+        submit_loan = st.form_submit_button("Lock Foreign Base Debt")
         
         if submit_loan:
             # RUN CORE BACKEND MATH ENGINE
@@ -115,15 +115,15 @@ with tab_ledger:
                         st.write(f"💵 Deployed: **{row['xaf_requested']:,} XAF**")
                         st.caption(f"FX Locked: {row['exchange_rate']} rate")
                     with c3:
-                        st.write(f"🎯 Owed: **{corr_currency[0]} {row['total_due_fx']}**")
-                        st.caption(f"Base Principal: {corr_currency[0]} {row['principal_fx']}")
+                        st.write(f"🎯 Owed: **{corr_currency} {row['total_due_fx']}**")
+                        st.caption(f"Base Principal: {corr_currency} {row['principal_fx']}")
                     with c4:
                         # Open the 3 Settlement Validation Workspace directly inside row
                         st.write("🔧 **Resolution Action Panel**")
                         opt = st.selectbox(f"Select Resolution Path", ["Choose Options...", "Option 1: Full Payment", "Option 2: Interest-Only Rollover"], key=f"opt_{row['loan_id']}")
                         
                         if opt == "Option 1: Full Payment":
-                            if st.button(f"Confirm Full {corr_currency[0]} {row['total_due_fx']}", key=f"btn1_{row['loan_id']}"):
+                            if st.button(f"Confirm Full {corr_currency} {row['total_due_fx']}", key=f"btn1_{row['loan_id']}"):
                                 st.session_state.loans.at[idx, 'status'] = 'FULLY_PAID'
                                 # Update vault tracking line item
                                 c_idx = st.session_state.correspondents[st.session_state.correspondents['name'] == row['correspondent']].index
@@ -134,7 +134,7 @@ with tab_ledger:
                             override_p = st.number_input("Override Penalty Rate %", min_value=0.0, max_value=float(row['penalty_rate']), value=float(row['penalty_rate']), step=1.0, key=f"p2_{row['loan_id']}")
                             calc_pen = round(row['total_due_fx'] * (override_p / 100), 2)
                             expected_cash = row['interest_fx'] + calc_pen
-                            st.caption(f"Cash to Collect: {corr_currency[0]} {expected_cash} (Interest + Pen)")
+                            st.caption(f"Cash to Collect: {corr_currency} {expected_cash} (Interest + Pen)")
                             
                             if st.button(f"Process Rollover", key=f"btn2_{row['loan_id']}"):
                                 # Safe update vault tracking balance
